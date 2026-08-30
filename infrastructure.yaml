@@ -1,0 +1,25 @@
+version: 1
+
+project:
+  name: dalae37
+  domain: dalae37.com
+  environment: prod
+  timezone: Asia/Seoul
+
+naming:
+  resource_name_pattern: "{environment}-{provider}-{location}-{role}{index}"
+  hostname_pattern: "{role}{index}"
+
+infrastructure:
+  edge:
+    type: edge
+    provider: cloudflare
+  web:
+    type: compute
+    provider: aws
+  was:
+    type: compute
+    provider: aws
+  db:
+    type: database
+    provider: azure
