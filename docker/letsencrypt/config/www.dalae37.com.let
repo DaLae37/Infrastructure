@@ -1,0 +1,12 @@
+# Certificate request settings
+email = dalae37@gmail.com
+agree-tos = true
+non-interactive = true
+
+# Domain
+domains = www.dalae37.com
+
+# DNS-01 challenge
+authenticator = dns-cloudflare
+dns-cloudflare-credentials = /run/secrets/cloudflare.api
+dns-cloudflare-propagation-seconds = 30

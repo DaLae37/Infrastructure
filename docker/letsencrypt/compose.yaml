@@ -1,0 +1,21 @@
+services:
+  certbot:
+    image: certbot/dns-cloudflare:v5.7.0
+
+    volumes:
+      # Certificates and renewal data
+      - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt
+
+      # Certbot working directory
+      - /opt/dalae37/letsencrypt/work:/var/lib/letsencrypt
+
+      # Certbot logs
+      - /opt/dalae37/letsencrypt/logs:/var/log/letsencrypt
+
+      # Cloudflare API token
+      - ./secrets/cloudflare.api:/run/secrets/cloudflare.api:ro
+
+      # Certificate request configurations
+      - ./config:/etc/certbot/config:ro
+
+    restart: "no"

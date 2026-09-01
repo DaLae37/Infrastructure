@@ -1,0 +1,25 @@
+services:
+  web:
+    image: dalae37/web-www-dalae37-com:0.1.0
+
+    restart: unless-stopped
+
+    ports:
+      - "80:10080"
+      - "443:10443"
+
+    environment:
+      HTTP_PORT: "10080"
+      HTTPS_PORT: "10443"
+      WAS_HOST: "was.internal.dalae37.com"
+      WAS_PORT: "28080"
+
+    volumes:
+      - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt:ro
+
+    networks:
+      - dalae37
+
+networks:
+  dalae37:
+    external: true

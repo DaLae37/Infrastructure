@@ -1,0 +1,106 @@
+# WAS upstream
+upstream www_was {
+    zone www_was 64k;
+
+    # Docker embedded DNS
+    resolver 127.0.0.11 valid=30s ipv6=off;
+    resolver_timeout 5s;
+
+    server ${WAS_HOST}:${WAS_PORT} resolve;
+
+    keepalive 32;
+}
+
+# Default HTTP server
+server {
+    listen ${HTTP_PORT} default_server;
+
+    server_name _;
+
+    # Docker health check
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Reject unknown Host headers
+    location / {
+        return 444;
+    }
+}
+
+# www.dalae37.com - HTTP
+server {
+    listen ${HTTP_PORT};
+
+    server_name www.dalae37.com;
+
+    # Health check must remain available over HTTP
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Redirect normal HTTP traffic to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# Default HTTPS server
+server {
+    listen ${HTTPS_PORT} ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}
+
+# www.dalae37.com - HTTPS
+
+server {
+    listen ${HTTPS_PORT} ssl;
+
+    http2 on;
+
+    server_name www.dalae37.com;
+
+    # TLS
+    ssl_certificate
+        /etc/letsencrypt/live/www.dalae37.com/fullchain.pem;
+
+    ssl_certificate_key
+        /etc/letsencrypt/live/www.dalae37.com/privkey.pem;
+
+    include /etc/nginx/snippets/ssl.conf;
+
+    # Web root
+    root /usr/share/nginx/html;
+    index index.html;
+    client_max_body_size 10m;
+
+
+    # Health check
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+
+    # WAS url
+    location /was/ {
+        include /etc/nginx/snippets/proxy.conf;
+        proxy_pass http://www_was;
+    }
+
+    # Static contents
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Protect hidden files
+    location ~ /\.(?!well-known/) {
+        deny all;
+    }
+}
