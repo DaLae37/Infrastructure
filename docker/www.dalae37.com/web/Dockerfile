@@ -23,14 +23,19 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/templates/ /etc/nginx/templates/
 COPY nginx/snippets/ /etc/nginx/snippets/
 
+# Copy web contents
+COPY --chown=nginx:nginx public/ /usr/share/nginx/html/
+
 # Runtime environment
 ENV HTTP_PORT=10080 \
     HTTPS_PORT=10443 \
     WAS_HOST=was.internal.dalae37.com \
-    WAS_PORT=28080
+    WAS_PORT=28080 \
+    NEXT_HOST=next-www-dalae37-com \
+    NEXT_PORT=3000
 
 # Restrict envsubst to application-specific environment variables only
-ENV NGINX_ENVSUBST_FILTER="^(HTTP_PORT|HTTPS_PORT|WAS_HOST|WAS_PORT)$"
+ENV NGINX_ENVSUBST_FILTER="^(HTTP_PORT|HTTPS_PORT|NEXT_HOST|NEXT_PORT|WAS_HOST|WAS_PORT)$"
 
 # Network
 EXPOSE 10080 10443

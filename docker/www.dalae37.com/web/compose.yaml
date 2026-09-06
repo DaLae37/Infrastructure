@@ -1,7 +1,27 @@
 services:
-  web:
-    image: dalae37/web-www-dalae37-com:0.1.0
+  next-www-dalae37-com:
+    image: dalae37/next-www-dalae37-com:1.0.0
+    restart: unless-stopped
 
+    environment:
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+
+    expose:
+      - "3000"
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-T", "2", "-O", "/dev/null", "http://127.0.0.1:3000/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+    networks:
+      - dalae37
+
+  web:
+    image: dalae37/web-www-dalae37-com:1.0.0
     restart: unless-stopped
 
     ports:
@@ -11,11 +31,19 @@ services:
     environment:
       HTTP_PORT: "10080"
       HTTPS_PORT: "10443"
+
+      NEXT_HOST: "next-www-dalae37-com"
+      NEXT_PORT: "3000"
+
       WAS_HOST: "was.internal.dalae37.com"
       WAS_PORT: "28080"
 
     volumes:
       - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt:ro
+
+    depends_on:
+      next-www-dalae37-com:
+        condition: service_healthy
 
     networks:
       - dalae37

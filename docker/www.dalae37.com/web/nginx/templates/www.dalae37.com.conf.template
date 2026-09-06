@@ -2,11 +2,22 @@
 upstream www_was {
     zone www_was 64k;
 
-    # Docker embedded DNS
     resolver 127.0.0.11 valid=30s ipv6=off;
     resolver_timeout 5s;
 
     server ${WAS_HOST}:${WAS_PORT} resolve;
+
+    keepalive 32;
+}
+
+# Web upstream
+upstream www_next {
+    zone www_next 64k;
+
+    resolver 127.0.0.11 valid=30s ipv6=off;
+    resolver_timeout 5s;
+
+    server ${NEXT_HOST}:${NEXT_PORT} resolve;
 
     keepalive 32;
 }
@@ -57,15 +68,12 @@ server {
 }
 
 # www.dalae37.com - HTTPS
-
 server {
     listen ${HTTPS_PORT} ssl;
-
     http2 on;
 
     server_name www.dalae37.com;
 
-    # TLS
     ssl_certificate
         /etc/letsencrypt/live/www.dalae37.com/fullchain.pem;
 
@@ -74,32 +82,27 @@ server {
 
     include /etc/nginx/snippets/ssl.conf;
 
-    # Web root
-    root /usr/share/nginx/html;
-    index index.html;
     client_max_body_size 10m;
 
-
-    # Health check
+    # Nginx health check
     location = /healthz {
         access_log off;
         default_type text/plain;
         return 200 "ok\n";
     }
 
-
-    # WAS url
+    # WAS
     location /was/ {
         include /etc/nginx/snippets/proxy.conf;
         proxy_pass http://www_was;
     }
 
-    # Static contents
+    # Next.js
     location / {
-        try_files $uri $uri/ =404;
+        include /etc/nginx/snippets/proxy.conf;
+        proxy_pass http://www_next;
     }
 
-    # Protect hidden files
     location ~ /\.(?!well-known/) {
         deny all;
     }
