@@ -1,6 +1,7 @@
 services:
   next-www-dalae37-com:
     image: dalae37/next-www-dalae37-com:latest
+    pull_policy: always
     restart: unless-stopped
 
     environment:
@@ -22,6 +23,7 @@ services:
 
   web-www-dalae37-com:
     image: dalae37/web-www-dalae37-com:latest
+    pull_policy: always
     restart: unless-stopped
 
     ports:
