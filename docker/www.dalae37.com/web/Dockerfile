@@ -24,7 +24,7 @@ COPY nginx/templates/ /etc/nginx/templates/
 COPY nginx/snippets/ /etc/nginx/snippets/
 
 # Copy web contents
-COPY --chown=nginx:nginx public/ /usr/share/nginx/html/
+COPY --chown=nginx:nginx publics/ /usr/share/nginx/html/
 
 # Runtime environment
 ENV HTTP_PORT=10080 \

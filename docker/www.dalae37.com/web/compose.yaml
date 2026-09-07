@@ -1,6 +1,6 @@
 services:
   next-www-dalae37-com:
-    image: dalae37/next-www-dalae37-com:1.0.0
+    image: dalae37/next-www-dalae37-com:latest
     restart: unless-stopped
 
     environment:
@@ -20,8 +20,8 @@ services:
     networks:
       - dalae37
 
-  web:
-    image: dalae37/web-www-dalae37-com:1.0.0
+  web-www-dalae37-com:
+    image: dalae37/web-www-dalae37-com:latest
     restart: unless-stopped
 
     ports:
