@@ -14,6 +14,7 @@ RUN rm -f /etc/nginx/conf.d/default.conf \
     && mkdir -p \
         /tmp/client_temp \
         /tmp/proxy_temp \
+        /usr/share/nginx/html/verification \
     && chown -R nginx:nginx \
         /usr/share/nginx/html \
         /tmp

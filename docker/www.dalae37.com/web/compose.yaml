@@ -39,7 +39,15 @@ services:
       WAS_PORT: "28080"
 
     volumes:
-      - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt:ro
+      - type: bind
+        source: /opt/dalae37/letsencrypt/certs
+        target: /etc/letsencrypt
+        read_only: true
+
+      - type: bind
+        source: ./verification
+        target: /usr/share/nginx/html/verification
+        read_only: true
 
     depends_on:
       next-www-dalae37-com:

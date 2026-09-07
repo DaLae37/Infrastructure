@@ -91,6 +91,11 @@ server {
         return 200 "ok\n";
     }
 
+    # Naver site ownership verification
+    location ~ ^/naver.*\.html$ {
+        root /usr/share/nginx/html/verification;
+    }
+
     # WAS
     location /was/ {
         include /etc/nginx/snippets/proxy.conf;
