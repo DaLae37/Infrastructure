@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:1.30.4-alpine
+FROM nginx:1.31.5-alpine
 
 # Image metadata
 LABEL org.opencontainers.image.title="web-www-dalae37-com" \
