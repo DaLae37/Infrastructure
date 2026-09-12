@@ -1,8 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NGINX_VERSION=1.30.4-alpine
-
-FROM nginx:${NGINX_VERSION}
+FROM nginx:1.30.4-alpine
 
 # Image metadata
 LABEL org.opencontainers.image.title="web-www-dalae37-com" \
@@ -25,7 +23,7 @@ COPY nginx/templates/ /etc/nginx/templates/
 COPY nginx/snippets/ /etc/nginx/snippets/
 
 # Copy web contents
-COPY --chown=nginx:nginx publics/ /usr/share/nginx/html/
+COPY --chown=nginx:nginx public/ /usr/share/nginx/html/
 
 # Runtime environment
 ENV HTTP_PORT=10080 \
