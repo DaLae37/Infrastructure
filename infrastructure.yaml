@@ -6,20 +6,185 @@ project:
   environment: prod
   timezone: Asia/Seoul
 
-naming:
-  resource_name_pattern: "{environment}-{provider}-{location}-{role}{index}"
-  hostname_pattern: "{role}{index}"
+naming_rule:
+  description:
+    environment: deployment environment
+    provider: cloud or infrastructure provider
+    location: logical location name
+    scope: infrastructure group or boundary
+    resource: resource type
+    role: workload or network role
+    index: sequential number
+    placement: provider-specific region or availability zone
+
+  patterns:
+    compute: "{environment}-{provider}-{location}-{role}{index}"
+    database_server: "{environment}-{provider}-{location}-{role}{index}"
+    vpc: "{environment}-{provider}-{location}-{scope}-vpc"
+    subnet: "{environment}-{provider}-{location}-{scope}-subnet-{role}{index}-{placement}"
+    route_table: "{environment}-{provider}-{location}-{scope}-rtb-{role}"
+    network_acl: "{environment}-{provider}-{location}-{scope}-acl"
+    security_group: "{environment}-{provider}-{location}-{scope}-sg-{role}"
+    storage: "{environment}-{provider}-{location}-{role}{index}"
+    cdn: "{environment}-{provider}-{location}-{role}{index}"
+    hostname: "{role}{index}"
+
+networking:
+  address_spaces:
+    aws:
+      cidr: 10.10.0.0/16
+
+    azure:
+      cidr: 10.20.0.0/16
+
+    gcp:
+      cidr: 10.30.0.0/16
 
 infrastructure:
-  edge:
-    type: edge
+  cloudflare:
     provider: cloudflare
-  web:
-    type: compute
+
+    dns:
+      type: dns
+      service: dns
+      zone: dalae37.com
+
+      records:
+        www:
+          fqdn: www.dalae37.com
+          type: A
+          proxied: true
+          target: aws.compute.web01
+
+        api:
+          fqdn: api.dalae37.com
+          type: A
+          proxied: true
+          target: gcp.compute.api01
+
+        resource:
+          fqdn: resource.dalae37.com
+          type: CNAME
+          proxied: true
+          target: aws.cdn.resource01
+
+  aws:
     provider: aws
-  was:
-    type: compute
-    provider: aws
-  db:
-    type: database
+    location: seoul
+    region: ap-northeast-2
+
+    network:
+      vpc:
+        type: network
+        service: vpc
+        role: main
+        name: prod-aws-seoul-main-vpc
+        cidr: 10.10.0.0/16
+
+      subnets:
+        public1:
+          type: subnet
+          service: vpc
+          role: public
+          name: prod-aws-seoul-main-subnet-public1-ap-northeast-2a
+          availability_zone: ap-northeast-2a
+          cidr: 10.10.0.0/20
+          ipv6_cidr: 2406:da12:b31:e000::/64
+
+        public2:
+          type: subnet
+          service: vpc
+          role: public
+          name: prod-aws-seoul-main-subnet-public2-ap-northeast-2b
+          availability_zone: ap-northeast-2b
+          cidr: 10.10.16.0/20
+
+      route_tables:
+        public:
+          type: route-table
+          service: vpc
+          role: public
+          name: prod-aws-seoul-main-rtb-public
+
+      network_acls:
+        main:
+          type: network-acl
+          service: vpc
+          role: main
+          name: prod-aws-seoul-main-acl
+
+    compute:
+      web01:
+        type: compute
+        service: ec2
+        role: web
+        name: prod-aws-seoul-web01
+        hostname: web01
+        domain: www.dalae37.com
+        machine_type: t4g.micro
+        architecture: arm64
+        os: amazon-linux-2023
+
+    storage:
+      resource01:
+        type: object-storage
+        service: s3
+        role: resource
+        domain: resource.dalae37.com
+
+    cdn:
+      resource01:
+        type: cdn
+        service: cloudfront
+        role: resource
+        domain: resource.dalae37.com
+        origin: aws.storage.resource01
+        origin_access: oac
+
+  azure:
     provider: azure
+    location: seoul
+    region: koreacentral
+
+    network:
+      address_space: 10.20.0.0/16
+
+    database:
+      sql01:
+        type: database-server
+        service: azure-sql
+        role: sql
+        name: prod-azure-seoul-sql01
+
+        databases:
+          dalae37:
+            type: database
+            service: azure-sql-database
+            role: db
+            name: dalae37
+            machine_type: general-purpose-serverless-gen5-2vcore
+
+  gcp:
+    provider: gcp
+    location: oregon
+    region: us-west1
+
+    network:
+      vpc:
+        type: network
+        service: vpc
+        role: main
+        name: prod-gcp-oregon-main-vpc
+        cidr: 10.30.0.0/16
+
+    compute:
+      api01:
+        type: compute
+        service: compute-engine
+        role: api
+        name: prod-gcp-oregon-api01
+        hostname: api01
+        domain: api.dalae37.com
+        machine_type: e2-micro
+        architecture: x86_64
+        os: ubuntu
