@@ -1,0 +1,77 @@
+# API upstream
+upstream api_backend {
+    zone api_backend 64k;
+
+    resolver 127.0.0.11 valid=30s ipv6=off;
+    resolver_timeout 5s;
+
+    server ${API_HOST}:${API_PORT} resolve;
+
+    keepalive 32;
+}
+
+# Default HTTP server
+server {
+    listen ${HTTP_PORT} default_server;
+
+    server_name _;
+
+    # Docker health check
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Reject unknown Host headers
+    location / {
+        return 444;
+    }
+}
+
+# api.dalae37.com - HTTP
+server {
+    listen ${HTTP_PORT};
+
+    server_name api.dalae37.com;
+
+    # Redirect HTTP traffic to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# Default HTTPS server
+server {
+    listen ${HTTPS_PORT} ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}
+
+# api.dalae37.com - HTTPS
+server {
+    listen ${HTTPS_PORT} ssl;
+    http2 on;
+
+    server_name api.dalae37.com;
+
+    ssl_certificate
+        /etc/letsencrypt/live/api.dalae37.com/fullchain.pem;
+
+    ssl_certificate_key
+        /etc/letsencrypt/live/api.dalae37.com/privkey.pem;
+
+    include /etc/nginx/snippets/ssl.conf;
+
+    client_max_body_size 10m;
+
+    # API
+    location / {
+        include /etc/nginx/snippets/proxy.conf;
+        proxy_pass http://api_backend;
+    }
+
+    location ~ /\.(?!well-known/) {
+        deny all;
+    }
+}

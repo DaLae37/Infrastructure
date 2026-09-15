@@ -10,3 +10,8 @@ updates:
     directory: "/docker/www.dalae37.com/web"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/api.dalae37.com/web"
+    schedule:
+      interval: "weekly"

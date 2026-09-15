@@ -1,0 +1,55 @@
+services:
+  sport-api-dalae37-com:
+    image: ghcr.io/dalae37/sport-api-dalae37-com:latest
+    pull_policy: always
+    restart: unless-stopped
+
+    environment:
+      CACHE_TTL_SECONDS: "600"
+      TIMEZONE: Asia/Seoul
+
+    expose:
+      - "80"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/healthz', timeout=2)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+    networks:
+      - dalae37
+
+  web-api-dalae37-com:
+    image: ghcr.io/dalae37/web-api.dalae37.com:latest
+    pull_policy: always
+    restart: unless-stopped
+
+    ports:
+      - "80:10080"
+      - "443:10443"
+
+    environment:
+      HTTP_PORT: "10080"
+      HTTPS_PORT: "10443"
+
+      API_HOST: sport-api-dalae37-com
+      API_PORT: "80"
+
+    volumes:
+      - type: bind
+        source: /opt/dalae37/letsencrypt/certs
+        target: /etc/letsencrypt
+        read_only: true
+
+    depends_on:
+      sport-api-dalae37-com:
+        condition: service_healthy
+
+    networks:
+      - dalae37
+
+networks:
+  dalae37:
+    external: true
