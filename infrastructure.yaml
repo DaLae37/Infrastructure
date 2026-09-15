@@ -99,20 +99,6 @@ infrastructure:
           availability_zone: ap-northeast-2b
           cidr: 10.10.16.0/20
 
-      route_tables:
-        public:
-          type: route-table
-          service: vpc
-          role: public
-          name: prod-aws-seoul-main-rtb-public
-
-      network_acls:
-        main:
-          type: network-acl
-          service: vpc
-          role: main
-          name: prod-aws-seoul-main-acl
-
     compute:
       web01:
         type: compute
@@ -121,6 +107,7 @@ infrastructure:
         name: prod-aws-seoul-web01
         hostname: web01
         domain: www.dalae37.com
+        subnet: prod-aws-seoul-main-subnet-public1-ap-northeast-2a
         machine_type: t4g.micro
         architecture: arm64
         os: amazon-linux-2023
@@ -174,8 +161,16 @@ infrastructure:
         type: network
         service: vpc
         role: main
-        name: prod-gcp-oregon-main-vpc
-        cidr: 10.30.0.0/16
+        name: prod-gcp-global-main-vpc
+
+      subnets:
+        public1:
+          type: subnet
+          service: vpc
+          role: public
+          name: prod-gcp-oregon-main-subnet-public1-us-west1
+          region: us-west1
+          cidr: 10.30.0.0/20
 
     compute:
       api01:
@@ -185,6 +180,7 @@ infrastructure:
         name: prod-gcp-oregon-api01
         hostname: api01
         domain: api.dalae37.com
+        subnet: prod-gcp-oregon-main-subnet-public1-us-west1
         machine_type: e2-micro
         architecture: x86_64
-        os: ubuntu
+        os: rocky-linux-10
