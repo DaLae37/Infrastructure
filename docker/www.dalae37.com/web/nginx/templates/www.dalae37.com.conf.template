@@ -1,18 +1,6 @@
-# WAS upstream
-upstream www_was {
-    zone www_was 64k;
-
-    resolver 127.0.0.11 valid=30s ipv6=off;
-    resolver_timeout 5s;
-
-    server ${WAS_HOST}:${WAS_PORT} resolve;
-
-    keepalive 32;
-}
-
-# Web upstream
-upstream www_next {
-    zone www_next 64k;
+# Next.js upstream
+upstream next-www {
+    zone next-www 64k;
 
     resolver 127.0.0.11 valid=30s ipv6=off;
     resolver_timeout 5s;
@@ -96,16 +84,10 @@ server {
         root /usr/share/nginx/html/verification;
     }
 
-    # WAS
-    location /was/ {
-        include /etc/nginx/snippets/proxy.conf;
-        proxy_pass http://www_was;
-    }
-
     # Next.js
     location / {
         include /etc/nginx/snippets/proxy.conf;
-        proxy_pass http://www_next;
+        proxy_pass http://next-www;
     }
 
     location ~ /\.(?!well-known/) {

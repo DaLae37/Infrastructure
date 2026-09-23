@@ -37,9 +37,6 @@ services:
       NEXT_HOST: "next-www-dalae37-com"
       NEXT_PORT: "3000"
 
-      WAS_HOST: "was.internal.dalae37.com"
-      WAS_PORT: "28080"
-
     volumes:
       - type: bind
         source: /opt/dalae37/letsencrypt/certs
