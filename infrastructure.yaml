@@ -21,6 +21,7 @@ naming_rule:
     compute: "{environment}-{provider}-{location}-{role}{index}"
     database_server: "{environment}-{provider}-{location}-{role}{index}"
     vpc: "{environment}-{provider}-{location}-{scope}-vpc"
+    internet_gateway: "{environment}-{provider}-{location}-{scope}-igw"
     subnet: "{environment}-{provider}-{location}-{scope}-subnet-{role}{index}-{placement}"
     route_table: "{environment}-{provider}-{location}-{scope}-rtb-{role}"
     network_acl: "{environment}-{provider}-{location}-{scope}-acl"
@@ -66,7 +67,7 @@ infrastructure:
           fqdn: resource.dalae37.com
           type: CNAME
           proxied: true
-          target: aws.cdn.resource01
+          target: aws.cdn.cdn01
 
   aws:
     provider: aws
@@ -81,23 +82,57 @@ infrastructure:
         name: prod-aws-seoul-main-vpc
         cidr: 10.10.0.0/16
 
+      internet_gateway:
+        type: network
+        service: internet-gateway
+        role: main
+        name: prod-aws-seoul-main-igw
+
       subnets:
-        public1:
+        public01:
           type: subnet
           service: vpc
           role: public
-          name: prod-aws-seoul-main-subnet-public1-ap-northeast-2a
+          name: prod-aws-seoul-main-subnet-public01-ap-northeast-2a
           availability_zone: ap-northeast-2a
           cidr: 10.10.0.0/20
-          ipv6_cidr: 2406:da12:b31:e000::/64
 
-        public2:
+        public02:
           type: subnet
           service: vpc
           role: public
-          name: prod-aws-seoul-main-subnet-public2-ap-northeast-2b
+          name: prod-aws-seoul-main-subnet-public02-ap-northeast-2b
           availability_zone: ap-northeast-2b
           cidr: 10.10.16.0/20
+
+        private01:
+          type: subnet
+          service: vpc
+          role: private
+          name: prod-aws-seoul-main-subnet-private01-ap-northeast-2a
+          availability_zone: ap-northeast-2a
+          cidr: 10.10.64.0/20
+
+        private02:
+          type: subnet
+          service: vpc
+          role: private
+          name: prod-aws-seoul-main-subnet-private02-ap-northeast-2b
+          availability_zone: ap-northeast-2b
+          cidr: 10.10.80.0/20
+
+      route_tables:
+        public:
+          type: route-table
+          service: vpc
+          role: public
+          name: prod-aws-seoul-main-rtb-public
+
+        private:
+          type: route-table
+          service: vpc
+          role: private
+          name: prod-aws-seoul-main-rtb-private
 
     compute:
       web01:
@@ -107,25 +142,44 @@ infrastructure:
         name: prod-aws-seoul-web01
         hostname: web01
         domain: www.dalae37.com
-        subnet: prod-aws-seoul-main-subnet-public1-ap-northeast-2a
+        subnet: prod-aws-seoul-main-subnet-public01-ap-northeast-2a
         machine_type: t4g.micro
         architecture: arm64
         os: amazon-linux-2023
+
+      was01:
+        type: serverless-compute
+        service: lambda
+        role: was
+        name: prod-aws-seoul-was01
+        architecture: arm64
+
+      was02:
+        type: serverless-compute
+        service: lambda
+        role: was
+        name: prod-aws-seoul-was02
+        architecture: arm64
 
     storage:
       resource01:
         type: object-storage
         service: s3
         role: resource
-        domain: resource.dalae37.com
+        name: "prod-aws-seoul-resource01-{name_prefix}"
+        name_prefix: "{aws_account_id}-ap-northeast-2-an"
 
     cdn:
-      resource01:
+      cdn01:
         type: cdn
         service: cloudfront
-        role: resource
-        domain: resource.dalae37.com
+        role: cdn
+        name: prod-aws-global-cdn01
+        location: global
+        domain: d2fypkxj2acjok.cloudfront.net
+        alternate_domain: resource.dalae37.com
         origin: aws.storage.resource01
+        origin_type: s3
         origin_access: oac
 
   azure:
