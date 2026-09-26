@@ -42,6 +42,8 @@ services:
         source: /opt/dalae37/letsencrypt/certs
         target: /etc/letsencrypt
         read_only: true
+        bind:
+          selinux: z
 
       - type: bind
         source: ./verification
@@ -50,7 +52,7 @@ services:
 
     depends_on:
       next-www-dalae37-com:
-        condition: service_healthy
+        condition: service_started
 
     networks:
       - dalae37

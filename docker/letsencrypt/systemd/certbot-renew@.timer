@@ -1,0 +1,10 @@
+[Unit]
+Description=Run certificate renewal daily for FQDN %i
+
+[Timer]
+OnCalendar=*-*-* 02:00:00 Asia/Seoul
+AccuracySec=1s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

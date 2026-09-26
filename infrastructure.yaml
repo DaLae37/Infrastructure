@@ -26,6 +26,7 @@ naming_rule:
     route_table: "{environment}-{provider}-{location}-{scope}-rtb-{role}"
     network_acl: "{environment}-{provider}-{location}-{scope}-acl"
     security_group: "{environment}-{provider}-{location}-{scope}-sg-{role}"
+    ip_address: "{environment}-{provider}-{location}-ip-{role}{index}"
     storage: "{environment}-{provider}-{location}-{role}{index}"
     cdn: "{environment}-{provider}-{location}-{role}{index}"
     hostname: "{role}{index}"
@@ -218,13 +219,21 @@ infrastructure:
         name: prod-gcp-global-main-vpc
 
       subnets:
-        public1:
+        public01:
           type: subnet
           service: vpc
           role: public
-          name: prod-gcp-oregon-main-subnet-public1-us-west1
+          name: prod-gcp-oregon-main-subnet-public01-us-west1
           region: us-west1
           cidr: 10.30.0.0/20
+
+        public02:
+          type: subnet
+          service: vpc
+          role: public
+          name: prod-gcp-oregon-main-subnet-public02-us-west1
+          region: us-west1
+          cidr: 10.30.16.0/20
 
     compute:
       api01:
@@ -234,7 +243,7 @@ infrastructure:
         name: prod-gcp-oregon-api01
         hostname: api01
         domain: api.dalae37.com
-        subnet: prod-gcp-oregon-main-subnet-public1-us-west1
+        subnet: prod-gcp-oregon-main-subnet-public01-us-west1
         machine_type: e2-micro
         architecture: x86_64
         os: rocky-linux-10

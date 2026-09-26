@@ -21,14 +21,17 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/templates/ /etc/nginx/templates/
 COPY nginx/snippets/ /etc/nginx/snippets/
 
+# Copy web contents
+COPY --chown=nginx:nginx public/ /usr/share/nginx/html/
+
 # Runtime environment
 ENV HTTP_PORT=10080 \
     HTTPS_PORT=10443 \
-    API_HOST=sport-api-dalae37-com \
-    API_PORT=80
+    SPORT_API_HOST=sport-api-dalae37-com \
+    SPORT_API_PORT=80
 
 # Restrict envsubst to application-specific environment variables only
-ENV NGINX_ENVSUBST_FILTER="^(HTTP_PORT|HTTPS_PORT|API_HOST|API_PORT)$"
+ENV NGINX_ENVSUBST_FILTER="^(HTTP_PORT|HTTPS_PORT|SPORT_API_HOST|SPORT_API_PORT)$"
 
 # Network
 EXPOSE 10080 10443

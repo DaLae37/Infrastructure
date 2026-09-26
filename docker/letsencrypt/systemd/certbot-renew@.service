@@ -1,0 +1,15 @@
+[Unit]
+Description=Renew certificate for FQDN %i
+Requires=docker.service
+Wants=network-online.target
+After=docker.service network-online.target
+StartLimitIntervalSec=1h
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/certbot-renew %i
+Restart=on-failure
+RestartSec=15min
+TimeoutStartSec=30min
+UMask=0077

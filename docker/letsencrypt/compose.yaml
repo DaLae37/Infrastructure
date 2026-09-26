@@ -4,18 +4,21 @@ services:
 
     volumes:
       # Certificates and renewal data
-      - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt
+      - /opt/dalae37/letsencrypt/certs:/etc/letsencrypt:z
 
       # Certbot working directory
-      - /opt/dalae37/letsencrypt/work:/var/lib/letsencrypt
+      - /opt/dalae37/letsencrypt/work:/var/lib/letsencrypt:z
 
       # Certbot logs
-      - /opt/dalae37/letsencrypt/logs:/var/log/letsencrypt
+      - /opt/dalae37/letsencrypt/logs:/var/log/letsencrypt:z
 
       # Cloudflare API token
-      - ./secrets/cloudflare.api:/run/secrets/cloudflare.api:ro
+      - ./secret/cloudflare.api:/run/secrets/cloudflare.api:ro,z
 
       # Certificate request configurations
-      - ./config:/etc/certbot/config:ro
+      - ./config:/etc/certbot/config:ro,z
+
+      # Deploy hook scripts
+      - ./hooks:/etc/certbot/hooks:ro,z
 
     restart: "no"

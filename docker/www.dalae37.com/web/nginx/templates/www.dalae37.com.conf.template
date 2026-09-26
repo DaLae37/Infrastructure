@@ -72,6 +72,9 @@ server {
 
     client_max_body_size 10m;
 
+    # Show a temporary page when Nginx cannot reach Next.js
+    error_page 502 503 504 =503 /index.html;
+
     # Nginx health check
     location = /healthz {
         access_log off;
@@ -82,6 +85,15 @@ server {
     # Naver site ownership verification
     location ~ ^/naver.*\.html$ {
         root /usr/share/nginx/html/verification;
+    }
+
+    # Next.js startup fallback
+    location = /index.html {
+        internal;
+        root /usr/share/nginx/html;
+
+        add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0" always;
+        add_header Retry-After "5" always;
     }
 
     # Next.js

@@ -5,6 +5,7 @@ non-interactive = true
 
 # Domain
 domains = www.dalae37.com
+cert-name = www.dalae37.com
 
 # DNS-01 challenge
 authenticator = dns-cloudflare

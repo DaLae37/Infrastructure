@@ -1,11 +1,11 @@
 # API upstream
-upstream api_backend {
-    zone api_backend 64k;
+upstream sport-api {
+    zone sport-api 64k;
 
     resolver 127.0.0.11 valid=30s ipv6=off;
     resolver_timeout 5s;
 
-    server ${API_HOST}:${API_PORT} resolve;
+    server ${SPORT_API_HOST}:${SPORT_API_PORT} resolve;
 
     keepalive 32;
 }
@@ -65,10 +65,32 @@ server {
 
     client_max_body_size 10m;
 
-    # API
-    location / {
+    # Show a temporary page when Nginx cannot reach the API
+    error_page 502 503 504 =503 /index.html;
+
+    # API startup fallback
+    location = /index.html {
+        internal;
+        root /usr/share/nginx/html;
+
+        add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0" always;
+        add_header Retry-After "5" always;
+    }
+
+    # Sport API
+    location = /sport {
         include /etc/nginx/snippets/proxy.conf;
-        proxy_pass http://api_backend;
+        proxy_pass http://sport-api;
+    }
+
+    location /sport/ {
+        include /etc/nginx/snippets/proxy.conf;
+        proxy_pass http://sport-api;
+    }
+
+    # Unregistered API routes
+    location / {
+        return 404;
     }
 
     location ~ /\.(?!well-known/) {
