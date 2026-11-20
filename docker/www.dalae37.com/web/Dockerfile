@@ -1,14 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:1.30.4-alpine
+FROM nginx:1.30.7-alpine
 
 # Image metadata
 LABEL org.opencontainers.image.title="web-www-dalae37-com" \
       org.opencontainers.image.description="Web server for www.dalae37.com" \
       org.opencontainers.image.source="https://github.com/DaLae37/Infrastructure"
 
-# Prepare Nginx directories
-RUN rm -f /etc/nginx/conf.d/default.conf \
+# Update base packages and prepare Nginx directories
+RUN apk upgrade --no-cache \
+    && rm -f /etc/nginx/conf.d/default.conf \
     && mkdir -p \
         /tmp/client_temp \
         /tmp/proxy_temp \

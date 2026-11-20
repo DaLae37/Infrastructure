@@ -20,6 +20,7 @@ naming_rule:
   patterns:
     compute: "{environment}-{provider}-{location}-{role}{index}"
     database_server: "{environment}-{provider}-{location}-{role}{index}"
+    ecs_cluster: "{environment}-{provider}-{location}-ecs{index}"
     vpc: "{environment}-{provider}-{location}-{scope}-vpc"
     internet_gateway: "{environment}-{provider}-{location}-{scope}-igw"
     subnet: "{environment}-{provider}-{location}-{scope}-subnet-{role}{index}-{placement}"
@@ -135,6 +136,19 @@ infrastructure:
           role: private
           name: prod-aws-seoul-main-rtb-private
 
+      security_groups:
+        db01:
+          type: security-group
+          service: vpc
+          role: db
+          name: prod-aws-seoul-sg-db01
+
+        ecs01:
+          type: security-group
+          service: vpc
+          role: ecs
+          name: prod-aws-seoul-sg-ecs01
+
     compute:
       web01:
         type: compute
@@ -161,6 +175,28 @@ infrastructure:
         role: was
         name: prod-aws-seoul-was02
         architecture: arm64
+
+    database:
+      db01:
+        type: database-server
+        service: rds-postgresql
+        role: db
+        name: prod-aws-seoul-db01
+
+        databases:
+          tqqq:
+            type: database
+            service: postgresql
+            role: db
+            name: tqqq
+
+    ecs:
+      clusters:
+        ecs01:
+          type: cluster
+          service: ecs
+          role: ecs
+          name: prod-aws-seoul-ecs01
 
     storage:
       resource01:
